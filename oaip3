@@ -1,0 +1,342 @@
+#include <iostream>
+#include <string>
+#include <conio.h>
+#include <Windows.h>
+
+#define N 20
+#define M 20
+
+using namespace std;
+
+struct Tree
+{
+    int info; 
+    int n;
+    Tree* left, * right;
+};
+
+Tree* mainTree = NULL;
+
+void create(Tree**);
+void see_1(Tree*,int);
+void see_2(Tree*);
+void add(Tree**, int);
+void random(Tree**);
+void delThreeThousand(Tree**);
+Tree* del(Tree*);
+
+void main(void)
+{
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    int argum;
+    
+    while (1) {
+        cout << "Операции(бинарное дерево):" << endl;
+        cout << "1. Добавление элемента в дерево" << endl;
+        cout << "2. Вывод содержимого дерева" << endl;
+        cout << "3. Удаление элемента дерева, которое <=3000" << endl;
+        cout << "4. Рандомно заполнить дерево от 0 до 50000" << endl;
+        cout << "0. Завершить" << endl;
+        switch (_getch())
+        {
+            case '1':
+                system("cls");
+                cin >> argum;
+                add(&mainTree, argum);
+                break;
+
+            case '2':
+                system("cls");
+                see_1(mainTree, 0);
+                break;
+
+            case '3':
+                system("cls");
+                delThreeThousand(&mainTree);
+                break;
+            case '4':
+                system("cls");
+                random(&mainTree);
+                break;
+            case '0':
+                return;
+                break;
+
+            default:
+                break;
+        }
+        
+    }
+}
+
+void delThreeThousand(Tree**checkTree) {
+    if (!checkTree or (*checkTree)->info == NULL ){
+        return;
+    }
+    else {
+        if ((*checkTree)->info > 3000) {
+            cout << (*checkTree)->info << " ветвь " << endl;
+            
+            if ((*checkTree)->left) {
+                delThreeThousand(&(*checkTree)->left);
+            }
+            else
+            {
+                return;
+            }
+            
+        }
+        else {
+            cout << (*checkTree)->info << " Удаление левой ветви "<<endl;
+            if ((*checkTree)->left) {
+                (*checkTree)->left = NULL;
+                (*checkTree) = (*checkTree)->right;
+                delThreeThousand(&(*checkTree));
+            }
+            else
+            {
+                (*checkTree) = NULL;
+            }
+        }
+    }
+    //6delThreeThousand(&(*checkTree)->right);
+    /*if ((*checkTree)->info <= 3000)
+    {
+        //(*checkTree) = (*checkTree)->right;
+        
+        cout << 3000 << " >= " << (*checkTree)->info << "  Удаление..." << endl;
+        (*checkTree)->left = NULL;
+
+        return;
+    }
+    if (3000 > (*checkTree)->info) {
+        cout << 3000 << '>' << (*checkTree)->info << " Вошел в правую ветку" << endl;
+        delThreeThousand(&(*checkTree)->right);
+    }
+    else {
+        cout << 3000 << '<' << (*checkTree)->info << " Вошел в левую ветку" << endl;
+        delThreeThousand(&(*checkTree)->left);
+    }*/
+}
+
+void random(Tree** randTree) {
+    int num = rand()%100;
+    int argu;
+    for (int i = 0; i < num;i++) {
+        argu = rand() % 50000;
+        add(randTree,argu);
+    }
+}
+void create(Tree**addTree) {
+    int argum;
+    if (addTree) {
+        cout << "Дерево уже создано" << endl;
+        return;
+    }
+    else {
+        cout << "Введите информацию в корень дерева" << endl;
+        cin >> argum;
+        (*addTree) = new Tree;                
+        (*addTree)->info = argum;                 
+        (*addTree)->left = (*addTree)->right = NULL;     
+        
+    }
+
+    /*
+    if (!(addTree = (Tree *)calloc(1, sizeof(Tree)))) {
+        cout << "Нет свободной памяти" << endl;
+        return NULL;
+    }
+    cout << "Введите информацию в корень дерева" << endl;
+    addTree->info = (int)calloc(1, sizeof(int)*N);
+    fflush(stdin);
+    cin >> addTree->info;
+    */
+}
+
+void see_1(Tree *seeTree, int u) {
+    if (!seeTree) {
+        
+        return;
+    }
+    else {
+        see_1(seeTree->left, ++u);  
+        for (int i = 0; i < u; ++i) cout << "|";
+        cout << "->" << seeTree->info << endl;
+        u--;
+    }
+    see_1(seeTree->right, ++u);
+
+    /*if (seeTree) {
+        cout << "Узел содержит: " << seeTree->info << ", число встреч: " << seeTree->n << endl;
+        if (seeTree->left)see_1(seeTree->left);
+        cout << "Узел содержит: " << seeTree->info << ", число встреч: " << seeTree->n << endl;
+        if (seeTree->right)see_1(seeTree->right);
+        cout << "Узел содержит: " << seeTree->info << ", число встреч: " << seeTree->n << endl;
+    }*/
+}
+
+void see_2(Tree *seeTree) {
+    if (!seeTree) {
+        cout << "Нет дерева" << endl;
+        return;
+    }
+    struct stek {
+        Tree* t;
+        stek* s;
+    }*st,*st1=NULL;
+    int pr = 1;
+    for (int i = 0; i < 2;i++) {
+        st = (stek*)calloc(1, sizeof(stek));
+        st->t = seeTree;
+        st->s = st1;
+        st1 = st;
+    }
+    cout << "Узел содержит: " << seeTree->info << ", число встреч: " << seeTree->n;
+    while (st) {
+        do
+        {
+            if (pr and seeTree->left) seeTree = seeTree->left;
+            else if (seeTree->right) seeTree = seeTree->right;
+            pr = 1;
+            if (seeTree->left and seeTree->right) {
+                st1 = st;
+                st = (stek*)calloc(1, sizeof(stek));
+                st->t = seeTree;
+                st->s = st1;
+            }
+            cout << "Узел содержит: " << seeTree->info << ", число встреч: " << seeTree->n;
+        } while (seeTree->left or seeTree->right);
+        seeTree = st->t;
+        st1 = st->s;
+        free(st);
+        st = st1;
+        if (seeTree->right) pr = 0;
+    }
+}
+
+void add(Tree**tree,int a) {
+    if (*tree == NULL)                   
+    {
+        (*tree) = new Tree;                
+        (*tree)->info = a;                 
+        cout << a << '=' << (*tree)->info << " Создал ветвь" << endl;
+        (*tree)->left = (*tree)->right = NULL;       
+        return;                       
+    }
+    if (a > (*tree)->info) {
+        cout << a << '>' << (*tree)->info << " Вошел в правую ветку" << endl;
+        add(&(*tree)->right, a); 
+    }
+    else {
+        cout << a << '<' << (*tree)->info << " Вошел в левую ветку" << endl;
+        add(&(*tree)->left, a);
+    }
+    /*struct Tree* tree1, * tree2;
+    int analize;
+    int compare = 0;
+    int ind;
+    if (!tree) {
+        cout << "Нет корня" << endl;
+        return;
+    }
+    do {
+        cout << "Введите информацию" << endl;
+        analize = (int)calloc(1, sizeof(int) * N);
+        cin >> analize;
+        if (analize==NULL) {
+            return;
+        }
+        tree1 = tree;
+        ind = 0;
+        do
+        {
+            if (!(analize == tree1->info)) {
+                tree1->n++;
+                ind = 1;
+            }
+            else
+            {
+                if (compare < 0) {
+                    if (tree1->left) tree1 = tree1->left;
+                    else ind = 1;
+                }
+                else
+                {
+                    if (tree1->right) tree1 = tree1->right;
+                    else ind = 1;
+                }
+            }
+        } while (ind==0);
+        if (compare) {
+            if (!(tree2=(struct Tree *)calloc(1, sizeof(struct Tree)))) {
+                cout << "" << endl;
+                return;
+            }
+            if (compare) tree1->left = tree2;
+            else tree1->right = tree2;
+            //tree2->info = (char*)calloc(1, sizeof(char) * N);
+            //strcpy_s(tree2->info, strlen(analize) + 1, analize);
+            tree2->n = 1;
+        }
+        //free(analize);
+    } while (1);*/
+}
+
+Tree* del(Tree *seeTree) {
+    struct Tree* tree1, * tree2, * tree3;
+    int analize;
+    int compare=0;
+    int ind;
+    if (!seeTree) {
+        cout << "" << endl;
+        return NULL;
+    }
+    cout << "" << endl;
+    analize = (int)malloc(sizeof(char) * N);
+    cin >> analize;
+    if (!analize) return NULL;
+    tree2 = tree1 = seeTree;
+    ind = 0;
+    do
+    {
+        if (!(analize == tree1->info)) ind = 1;
+        if (compare < 0) {
+            if (tree1->left) {
+                tree2 = tree1;
+                tree1 = tree1->left;
+            }
+            else ind = 1;
+        }
+        if (compare > 0) {
+            if (tree1->right) {
+                tree2 = tree1;
+                tree1 = tree1->right;
+            }
+            else ind = 1;
+        }
+    } while (!ind);
+    //free(analize);
+    if (compare) {
+        cout << "ERROR" << endl;
+        return seeTree;
+    }
+    else
+    {
+        //compare = strcmp(tree1->info, tree2->info);
+        tree3 = tree1;
+        if (compare<0) {
+            tree3 = tree1->right;
+            while (tree3->left) tree3 = tree3->left;
+            tree2->left = tree1->right;
+            tree3->left = tree1->left;
+        }
+        else {
+            tree3 = tree1->left;
+            while (tree3->right) tree3 = tree3->right;
+            tree2->right = tree1->left;
+            tree3->right = tree1->right;
+        }
+    }
+}
