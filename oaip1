@@ -1,0 +1,122 @@
+#include <ctime>
+#include <string>
+#include <vector>
+#include <iostream>
+#include <windows.h>
+
+
+
+using namespace std;
+
+struct element { //Один элемент списка
+    int x; //Переменная, которая хранит значение элемента списка 
+    element* next; //Указатель на следующий элемент
+};
+
+class List {
+    element* Head; //Появился только указаель
+public:
+    List() {
+        Head = NULL; //Указатель никуда не указывает (при создании объекта)
+    }
+
+    ~List() {
+        while (Head != NULL) {
+            element* temp = Head->next;
+            delete Head;
+            Head = temp;
+        }
+    }
+
+    void deleteElement(int index) { //Функция удаления элемента по его номеру (не индексу)
+        element* temp = Head;
+        if (index == 1) {
+            Head = Head->next; //Чтобы ссылка при удалении первого элемента указывала на второй (то есть Head = 2 элементу)
+            delete temp;
+        }
+        else { //Если элемент не первый
+            element* del;
+            int count = 1;
+            while (Head != NULL && count < index - 1) {
+                temp = temp->next;
+                count++;
+            }
+            del = temp->next; //Элемент, который мы хотим удалить
+            temp->next = del->next; //Теперь тот элемент, который находится до удалемого, указывает на тот, на который указывает удаляемый
+            delete del; //Удаляем элемент
+        }
+    }
+
+    void addFromLeft(int x) { //Функция добавления элемента в список (вывод будет происходить справа налево)
+        element* temp = new element; //Создаем переменную типа element (стуктура)
+        temp->x = x; //Записываем значение переменной типа element
+        temp->next = Head; //Теперь Head указывает на начало списка 
+        Head = temp; //Теперь Head становится temp
+    }
+
+    void addFromRight(int x) { //Функция добавления элемента в список (вывод будет происходить слева направо)
+        if (Head == NULL) {
+            addFromLeft(x);
+            return;
+        }
+        element* temp = new element;
+        element* tempNew = Head;
+        temp->x = x;
+        temp->next = NULL;
+        while (tempNew->next != NULL) {
+            tempNew = tempNew->next;
+        }
+        tempNew->next = temp;
+    }
+
+    bool checkIfNegative(int number) { //Функция проверки является ли элемент отрицательным (по номеру)
+        element* temp = Head; //Отсюда мы начинаем идти слева направо
+        int count = 1;
+        while (temp != NULL) { //Пробегаем циклом по списку
+            if (count == number && temp->x < 0) {
+                return true; //Если элемент найден, возвращем true
+            }
+            temp = temp->next; //Переход к следующему элементу
+            count++;
+        }
+        return false; //Если элемент не найден вернем false
+    }
+
+    void printList() { //Функция вывода списка на экран
+        element* temp = Head;
+        while (temp != NULL) {
+            cout << temp->x << " ";
+            temp = temp->next;
+        }
+    }
+};
+
+int main() {
+    setlocale(LC_ALL, "ru");
+    int n, x;
+    bool flag = false;
+    List obj; //Создаем объект типа element
+    cout << "Введите количество чисел:\n";
+    cout << "n = ";
+    cin >> n; //Вводим количество элементов
+    cout << "Введите числа:\n";
+    for (int i = 0; i < n; i++) {
+        cin >> x;
+        obj.addFromRight(x); //Добавляем элементы в список (вывод происходит слева направо)
+    }
+    for (int i = n; i >= 1; i--) {
+        if (obj.checkIfNegative(i)) {
+            obj.deleteElement(i); //Удаляем отрицательный элемент
+            flag = true;
+        }
+    }
+    if (flag) {
+        cout << "Вывод:\n";
+        obj.printList(); //Выводим оставшиеся элементы списка
+    }
+    else {
+        cout << "В списке не существует отрицательных чисел!\n"; //Если отрицательные элементы не найдены
+    }
+    system("pause");
+    return 0;
+}
